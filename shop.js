@@ -21,6 +21,8 @@ async function loadShop() {
     displayItems();
   } catch (error) {
     console.error('Error loading shop items:', error);
+    // Display error message to user
+    shopItemsContainer.innerHTML = '<p class="error-message">Error loading shop items. Please try again later.</p>';
   }
 }
 
@@ -35,17 +37,28 @@ function displayItems() {
       const card = document.createElement('div');
       card.className = 'shop-card';
 
+      // Get the icon URL from the item data
+      const iconUrl = item.image?.small?.url || 'item_placeholder.png';
+      
       card.innerHTML = `
-        <h2>${item.name}</h2>
-        <p>${item.description || ''}</p>
-        <button data-id="${item._id}">Buy</button>
+        <div class="item-icon">
+          <img src="${iconUrl}" alt="${item.name} icon">
+        </div>
+        <div class="item-content">
+          <h2>${item.name}</h2>
+          <p>${item.description || ''}</p>
+          <div class="item-meta">
+            <span class="item-price">${item.price || 0} points</span>
+            <button data-id="${item._id}" class="buy-button">Buy</button>
+          </div>
+        </div>
       `;
 
       shopItemsContainer.appendChild(card);
     });
 
   // Attach event listeners to buy buttons
-  document.querySelectorAll('.shop-card button').forEach(button => {
+  document.querySelectorAll('.buy-button').forEach(button => {
     button.addEventListener('click', handlePurchase);
   });
 }
@@ -71,5 +84,5 @@ async function handlePurchase(event) {
 
 searchBar.addEventListener('input', displayItems);
 
-// Initial load
-loadShop();
+// Initialize shop on page load
+document.addEventListener('DOMContentLoaded', loadShop);

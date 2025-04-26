@@ -29,6 +29,23 @@ function logout() {
   window.location.href = 'login.html';
 }
 
+// Menu toggle functionality
+menuToggle.addEventListener('click', () => {
+  menu.classList.toggle('hidden');
+});
+
+// Close menu when clicking outside
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('.navbar')) {
+    menu.classList.add('hidden');
+  }
+});
+
+// Logout button event listener
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', logout);
+}
+
 async function loadChallenges() {
   // Check authentication before loading challenges
   if (!checkAuth()) return;
@@ -45,6 +62,9 @@ async function loadChallenges() {
     displayChallenges();
   } catch (error) {
     console.error('Error loading challenges:', error);
+    // Display error message to user
+    const challengeGrid = document.querySelector('.challenge-grid');
+    challengeGrid.innerHTML = '<p class="error-message">Error loading challenges. Please try again later.</p>';
   }
 }
 
@@ -69,27 +89,30 @@ function displayChallenges() {
       card.className = 'challenge-card';
       if (isCompleted) card.classList.add('completed');
 
+      // Get the icon URL from the challenge data
+      const iconUrl = challenge.image?.small?.url || 'challenge_placeholder.png';
+      
       card.innerHTML = `
-        <h2>${challenge.challenge}</h2>
-        <p>${challenge.description || ''}</p>
+        <div class="challenge-icon">
+          <img src="${iconUrl}" alt="${challenge.challenge} icon">
+        </div>
+        <div class="challenge-content">
+          <h2>${challenge.challenge}</h2>
+          <p>${challenge.description || ''}</p>
+          <div class="challenge-meta">
+            <span class="challenge-points">${challenge.points || 0} points</span>
+            ${isCompleted ? '<span class="challenge-status completed">Completed</span>' : ''}
+          </div>
+        </div>
       `;
 
       challengesList.appendChild(card);
     });
 }
 
+// Event listeners for search and filter
 searchBar.addEventListener('input', displayChallenges);
 filterStatus.addEventListener('change', displayChallenges);
 
-// Menu toggle functionality
-menuToggle.addEventListener('click', () => {
-  menu.classList.toggle('hidden');
-});
-
-// Add logout event listener
-if (logoutBtn) {
-  logoutBtn.addEventListener('click', logout);
-}
-
-// Initial load
-loadChallenges();
+// Initialize challenges on page load
+document.addEventListener('DOMContentLoaded', loadChallenges);
